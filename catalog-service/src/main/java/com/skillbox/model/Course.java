@@ -11,7 +11,16 @@ public class Course {
     private String id;
     private String title;
     private String direction;
-    private List<String> tariffs;
+    private String description;
+    private List<TariffType> tariffs;
+
+    public Course(String id, String title, String direction, String description, List<TariffType> tariffs) {
+        this.id = id;
+        this.title = title;
+        this.direction = direction;
+        this.description = description;
+        this.tariffs = tariffs;
+    }
 
     public String getId() {
         return id;
@@ -25,7 +34,11 @@ public class Course {
         return direction;
     }
 
-    public List<String> getTariffs() {
+    public String getDescription() {
+        return description;
+    }
+
+    public List<TariffType> getTariffs() {
         return tariffs;
     }
 }

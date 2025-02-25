@@ -8,6 +8,7 @@ import com.skillbox.repository.CourseRepository;
 import com.skillbox.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CatalogService {
@@ -26,8 +27,11 @@ public class CatalogService {
     }
 
     public Course getCourseDetails(String courseId) {
-        return courseRepo.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
+        System.out.println("Looking for course with ID: " + courseId);
+        return courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
     }
+
 
     public List<Course> getCoursesByDirection(String direction) {
         return courseRepo.findByDirection(direction);

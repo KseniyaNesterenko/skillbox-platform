@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  skillbox-network:
+    driver: bridge
+
 services:
   catalog-service:
     build: ./catalog-service
@@ -10,6 +14,9 @@ services:
       - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/skillbox
     depends_on:
       - mongo
+    networks:
+      - skillbox-network
+    restart: unless-stopped
 
   payment-service:
     build: ./payment-service
@@ -20,6 +27,9 @@ services:
       - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/skillbox
     depends_on:
       - mongo
+    networks:
+      - skillbox-network
+    restart: unless-stopped
 
   mongo:
     image: mongo
@@ -28,6 +38,10 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - skillbox-network
+    restart: unless-stopped
 
 volumes:
   mongo_data:
+
