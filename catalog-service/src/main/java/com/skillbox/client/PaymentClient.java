@@ -11,17 +11,20 @@ import java.util.Map;
 @Component
 public class PaymentClient {
     private final RestTemplate restTemplate;
-    private final String paymentServiceUrl = "http://payment-service/api/payment";
+    private final String paymentServiceUrl = "http://payment-service:8080/payment/create";
+
 
     public PaymentClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    public String generatePaymentLink(String userId, String courseId, String tariff) {
+    public String generatePaymentLink(String userId, String courseId, String tariff, String name, String email) {
         Map<String, String> requestBody = Map.of(
                 "userId", userId,
                 "courseId", courseId,
-                "tariff", tariff
+                "tariff", tariff,
+                "name", name,
+                "email", email
         );
 
         try {
@@ -33,4 +36,5 @@ public class PaymentClient {
             throw new RuntimeException("Payment service is unreachable. Try again later.");
         }
     }
+
 }

@@ -6,6 +6,7 @@ import com.skillbox.service.CatalogService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -53,41 +54,32 @@ public class CatalogController {
 
 
     @PostMapping("/enroll/auth-method")
-    public ResponseEntity<?> chooseAuthMethod(@RequestParam String userId,
-                                              @RequestParam String courseId,
-                                              @RequestParam String method) {
-        if (userId.isBlank() || courseId.isBlank()) {
-            return ResponseEntity.badRequest().body("User ID and Course ID cannot be empty");
+    public ResponseEntity<?> chooseAuthMethod(@RequestBody EnrollRequest request) {
+        if (request.getUserId().isBlank() || request.getCourseId().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID и Course ID не могут быть пустыми");
         }
+        if ("vk".equalsIgnoreCase(request.getMethod())) {
+            String userName = "Дмитрий Борисович Афанасьев";
+            String userEmail = "dima@example.com";
 
-        if ("vk".equalsIgnoreCase(method)) {
-            Map<String, String> vkUserData = Map.of(
-                    "fullName", "Иван Иванов",
-                    "email", "ivan.ivanov@example.com",
-                    "userId", userId,
-                    "courseId", courseId
-            );
-
-            EnrollRequest request = new EnrollRequest();
-            request.setUserId(userId);
-            request.setCourseId(courseId);
-            request.setMethod("vk");
-            request.setTariff("standard");
+            request.setName(userName);
+            request.setEmail(userEmail);
 
             String paymentLink = catalogService.enrollUserToCourse(request);
-
             return ResponseEntity.ok(Map.of("paymentLink", paymentLink));
-        } else if ("manual".equalsIgnoreCase(method)) {
+        }
+        else if ("manual".equalsIgnoreCase(request.getMethod())) {
             return ResponseEntity.ok(Map.of("message", "Proceed with manual registration. Send user details to /enroll/manual"));
-        } else {
-            return ResponseEntity.badRequest().body("Invalid authentication method");
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Неверный метод аутентификации: " + request.getMethod());
         }
     }
 
 
     @PostMapping("/enroll")
-    public ResponseEntity<String> enrollUser(@RequestBody EnrollRequest request) {
+    public ResponseEntity<Map<String, String>> enrollUser(@RequestBody EnrollRequest request) {
         String response = catalogService.enrollUserToCourse(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("message", response));
     }
 }

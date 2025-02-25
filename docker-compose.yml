@@ -14,6 +14,7 @@ services:
       - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/skillbox
     depends_on:
       - mongo
+      - payment-service
     networks:
       - skillbox-network
     restart: unless-stopped
@@ -22,7 +23,7 @@ services:
     build: ./payment-service
     container_name: payment-service
     ports:
-      - "8081:8081"
+      - "8080:8080"
     environment:
       - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/skillbox
     depends_on:

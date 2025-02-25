@@ -13,9 +13,12 @@ public class Payment {
     private String userId;
     private String courseId;
     private String tariff;
+    private String name;
+    private String email;
     private String paymentLink;
     private String status; // PENDING, SUCCESS, FAILED
     private LocalDateTime createdAt = LocalDateTime.now();
+
 
     public String getId() {
         return id;
@@ -67,5 +70,13 @@ public class Payment {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

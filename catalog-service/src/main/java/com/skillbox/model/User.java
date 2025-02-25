@@ -28,4 +28,16 @@ public class User {
     public List<String> getEnrolledCourses() {
         return enrolledCourses;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setEnrolledCourses(List<String> enrolledCourses) {
+        this.enrolledCourses = enrolledCourses;
+    }
 }

@@ -3,6 +3,7 @@ package com.skillbox.service;
 import com.skillbox.client.PaymentClient;
 import com.skillbox.dto.EnrollRequest;
 import com.skillbox.model.Course;
+import com.skillbox.model.TariffType;
 import com.skillbox.model.User;
 import com.skillbox.repository.CourseRepository;
 import com.skillbox.repository.UserRepository;
@@ -46,7 +47,14 @@ public class CatalogService {
         Course course = courseRepo.findById(request.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        if (!course.getTariffs().contains(request.getTariff())) {
+        TariffType requestedTariff;
+        try {
+            requestedTariff = TariffType.valueOf(request.getTariff().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid tariff: " + request.getTariff());
+        }
+
+        if (!course.getTariffs().contains(requestedTariff)) {
             throw new RuntimeException("Invalid tariff");
         }
 
@@ -54,9 +62,6 @@ public class CatalogService {
             throw new RuntimeException("User is already enrolled in this course");
         }
 
-        user.getEnrolledCourses().add(request.getCourseId());
-        userRepo.save(user);
-
-        return paymentClient.generatePaymentLink(request.getUserId(), request.getCourseId(), request.getTariff());
+        return paymentClient.generatePaymentLink(request.getUserId(), request.getCourseId(), request.getName(), request.getEmail(), request.getTariff());
     }
 }

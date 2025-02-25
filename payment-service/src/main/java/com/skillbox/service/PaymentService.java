@@ -22,6 +22,8 @@ public class PaymentService {
         payment.setUserId(request.getUserId());
         payment.setCourseId(request.getCourseId());
         payment.setTariff(request.getTariff());
+        payment.setName(request.getName());
+        payment.setEmail(request.getEmail());
         payment.setPaymentLink(paymentLink);
         payment.setStatus("PENDING");
 
