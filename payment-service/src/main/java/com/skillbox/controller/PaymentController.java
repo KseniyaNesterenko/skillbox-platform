@@ -18,4 +18,9 @@ public class PaymentController {
     public PaymentResponse createPayment(@RequestBody PaymentRequest request) {
         return paymentService.createPayment(request);
     }
+
+    @PostMapping("/process")
+    public String processPayment(@RequestParam String userId, @RequestParam String paymentLink, @RequestParam double amount) {
+        return paymentService.processPayment(userId, paymentLink, amount);
+    }
 }

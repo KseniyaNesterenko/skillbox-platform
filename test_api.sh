@@ -41,3 +41,21 @@ curl -X POST "$BASE_URL_CATALOG/enroll" -H "Content-Type: application/json" -d '
     "tariff": "STARTER"
 }'
 echo -e "\n"
+
+echo "📌 Создание платежа для пользователя:"
+payment_response=$(curl -X POST "$BASE_URL_PAYMENT/create" -H "Content-Type: application/json" -d '{
+  "userId": "1",
+  "courseId": "1",
+  "tariff": "STARTER",
+  "name": "Дмитрий Борисович Афанасьев",
+  "email": "dima@example.com"
+}')
+payment_link=$(echo "$payment_response" | jq -r '.paymentLink')
+
+echo "Ссылка на оплату: $payment_link"
+
+# Процесс оплаты
+echo "📌 Выполнение оплаты для пользователя:"
+payment_status=$(curl -X POST "$BASE_URL_PAYMENT/process" -G --data-urlencode "userId=1" --data-urlencode "paymentLink=$payment_link" --data-urlencode "amount=10")
+echo "Статус платежа: $payment_status"
+echo -e "\n"
