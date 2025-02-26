@@ -7,16 +7,24 @@ import com.skillbox.model.Payment;
 import com.skillbox.repository.BankRepository;
 import com.skillbox.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private BankRepository bankRepository;
+    private final BankRepository bankRepository;
+    private final RestTemplate restTemplate;
+    private String catalogServiceUrl =  "http://catalog-service:8080";
 
-    public PaymentService(PaymentRepository paymentRepository, BankRepository bankRepository) {
+    public PaymentService(PaymentRepository paymentRepository, BankRepository bankRepository, RestTemplate restTemplate) {
         this.paymentRepository = paymentRepository;
         this.bankRepository = bankRepository;
+        this.restTemplate = restTemplate;
     }
 
     public PaymentResponse createPayment(PaymentRequest request) {
@@ -30,6 +38,7 @@ public class PaymentService {
         payment.setEmail(request.getEmail());
         payment.setPaymentLink(paymentLink);
         payment.setStatus("PENDING");
+        payment.setExpiresAt(LocalDateTime.now().plusMinutes(10));
 
         paymentRepository.save(payment);
 
@@ -51,8 +60,16 @@ public class PaymentService {
             Payment payment = paymentRepository.findByPaymentLink(paymentLink)
                     .orElseThrow(() -> new RuntimeException("Payment not found"));
 
+            if (payment.getExpiresAt().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Payment link expired");
+            }
+
             payment.setStatus("SUCCESS");
             paymentRepository.save(payment);
+
+            String enrollUrl = catalogServiceUrl + "/users/" + userId + "/enroll/" + payment.getCourseId();
+            restTemplate.put(enrollUrl, null);
+
 
             return "SUCCESS";
         } else {

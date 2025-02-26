@@ -45,7 +45,7 @@ echo -e "\n"
 echo "📌 Создание платежа для пользователя:"
 payment_response=$(curl -X POST "$BASE_URL_PAYMENT/create" -H "Content-Type: application/json" -d '{
   "userId": "1",
-  "courseId": "1",
+  "courseId": "2",
   "tariff": "STARTER",
   "name": "Дмитрий Борисович Афанасьев",
   "email": "dima@example.com"

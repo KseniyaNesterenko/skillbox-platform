@@ -19,6 +19,8 @@ public class Payment {
     private String status; // PENDING, SUCCESS, FAILED
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    private LocalDateTime expiresAt;
+
 
     public String getId() {
         return id;
@@ -78,5 +80,13 @@ public class Payment {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
     }
 }

@@ -9,6 +9,7 @@
   </parent>
 
   <artifactId>catalog-service</artifactId>
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
