@@ -10,11 +10,10 @@ curl -X GET "$BASE_URL_CATALOG/directions" -H "Content-Type: application/json"
 echo -e "\n"
 
 # Получение курсов по направлению
-echo "📌 Получение курсов по направлению 'Test':"
-direction=$(echo -n "Test" | jq -sRr @uri)
+echo "📌 Получение курсов по направлению:"
+direction=$(echo -n "Программирование" | jq -sRr @uri)
 curl -X GET "$BASE_URL_CATALOG/courses/$direction" -H "Content-Type: application/json"
 echo -e "\n"
-
 
 # Получение информации о курсе
 echo "📌 Получение информации о курсе (id=1):"
@@ -24,7 +23,7 @@ echo -e "\n"
 # Запись пользователя на курс
 echo "📌 Запись пользователя на курс с ВК"
 curl -X POST "$BASE_URL_CATALOG/enroll/auth-method" -H "Content-Type: application/json" -d '{
-  "userId": "1",
+  "userId": "2",
   "courseId": "1",
   "method": "vk",
   "tariff": "STARTER"
@@ -44,8 +43,8 @@ echo -e "\n"
 
 echo "📌 Создание платежа для пользователя:"
 payment_response=$(curl -X POST "$BASE_URL_PAYMENT/create" -H "Content-Type: application/json" -d '{
-  "userId": "1",
-  "courseId": "2",
+  "userId": "2",
+  "courseId": "1",
   "tariff": "STARTER",
   "name": "Дмитрий Борисович Афанасьев",
   "email": "dima@example.com"
@@ -56,6 +55,6 @@ echo "Ссылка на оплату: $payment_link"
 
 # Процесс оплаты
 echo "📌 Выполнение оплаты для пользователя:"
-payment_status=$(curl -X POST "$BASE_URL_PAYMENT/process" -G --data-urlencode "userId=1" --data-urlencode "paymentLink=$payment_link" --data-urlencode "amount=10")
+payment_status=$(curl -X POST "$BASE_URL_PAYMENT/process" -G --data-urlencode "userId=2" --data-urlencode "paymentLink=$payment_link" --data-urlencode "amount=10")
 echo "Статус платежа: $payment_status"
 echo -e "\n"

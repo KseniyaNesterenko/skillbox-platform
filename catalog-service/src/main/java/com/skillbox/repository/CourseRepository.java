@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourseRepository extends MongoRepository<Course, String> {
+
     @Aggregation(pipeline = {
-            "{ $project: { direction: 1, _id: 0 } }"
+            "{ $group: { _id: '$direction' } }",
+            "{ $project: { _id: 0, direction: '$_id' } }"
     })
     List<String> findAllDirections();
 
