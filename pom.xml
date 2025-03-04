@@ -27,17 +27,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>1.18.22</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.15.2</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -51,13 +40,17 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
           <compilerArgs>
             <arg>-parameters</arg>
           </compilerArgs>
+          <basedir/>
+          <mainOutputDirectory/>
+          <mojoStatusPath/>
+          <outputDirectory/>
+          <projectArtifact/>
         </configuration>
       </plugin>
     </plugins>

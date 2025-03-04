@@ -1,9 +1,5 @@
 version: '3.8'
 
-networks:
-  skillbox-network:
-    driver: bridge
-
 services:
   catalog-service:
     build: ./catalog-service
@@ -45,4 +41,8 @@ services:
 
 volumes:
   mongo_data:
+
+networks:
+  skillbox-network:
+    driver: bridge
 

@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM openjdk:20-jdk-slim
 
 WORKDIR /app
 
