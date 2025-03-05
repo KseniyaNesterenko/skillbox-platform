@@ -2,6 +2,7 @@ package com.skillbox.migration;
 
 import com.skillbox.model.TariffType;
 import com.skillbox.model.Course;
+import com.skillbox.model.CourseTask;
 import com.skillbox.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -23,6 +24,7 @@ public class MongoDataMigration implements ApplicationListener<ContextRefreshedE
     public void onApplicationEvent(ContextRefreshedEvent event) {
         addInitialCourses();
         addInitialUsers();
+        addInitialCourseTasks();
     }
 
     private void addInitialCourses() {
@@ -65,6 +67,30 @@ public class MongoDataMigration implements ApplicationListener<ContextRefreshedE
             mongoTemplate.save(user3);
 
             System.out.println("📌 Initial users added.");
+        }
+    }
+
+    private void addInitialCourseTasks() {
+        if (mongoTemplate.count(new Query(Criteria.where("taskDescription").exists(true)), CourseTask.class) == 0) {
+            Course course1 = mongoTemplate.findById("1", Course.class);
+            Course course2 = mongoTemplate.findById("2", Course.class);
+
+            if (course1 != null && course2 != null) {
+                CourseTask task1 = new CourseTask();
+                task1.setTaskDescription("Скажите пожалуйста");
+                task1.setPoints(10);
+                task1.setCourse(course1);
+
+                CourseTask task2 = new CourseTask();
+                task2.setTaskDescription("Я тупой");
+                task2.setPoints(15);
+                task2.setCourse(course2);
+
+                mongoTemplate.save(task1);
+                mongoTemplate.save(task2);
+
+                System.out.println("📌 Initial course tasks added.");
+            }
         }
     }
 }

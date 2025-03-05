@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +22,9 @@ import java.util.Map;
 @RequestMapping("/catalog")
 @Tag(name = "Каталог курсов", description = "API для работы с курсами и направлениями")
 public class CatalogController {
-    private final CatalogService catalogService;
 
-    public CatalogController(CatalogService catalogService) {
-        this.catalogService = catalogService;
-    }
+    @Autowired
+    private CatalogService catalogService;
 
     @Operation(
             summary = "Получить все направления обучения",

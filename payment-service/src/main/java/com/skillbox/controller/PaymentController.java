@@ -3,6 +3,7 @@ package com.skillbox.controller;
 import com.skillbox.dto.PaymentRequest;
 import com.skillbox.dto.PaymentResponse;
 import com.skillbox.service.PaymentService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,18 +11,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/payment")
 @Tag(name = "Система оплаты", description = "Операции обработки платежей")
 public class PaymentController {
-    private final PaymentService paymentService;
 
-    public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
+    @Autowired
+    private PaymentService paymentService;
 
+    @Hidden
     @PostMapping("/create")
     @Operation(summary = "Создать платеж", description = "Генерирует ссылку на оплату для пользователя.")
     @ApiResponse(responseCode = "200", description = "Ссылка на оплату успешно создана",
