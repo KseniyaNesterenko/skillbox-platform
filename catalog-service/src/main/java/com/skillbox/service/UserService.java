@@ -1,7 +1,10 @@
 package com.skillbox.service;
 
+import com.skillbox.exception.ErrorResponse;
+import com.skillbox.model.Course;
 import com.skillbox.model.CourseTask;
 import com.skillbox.model.User;
+import com.skillbox.repository.CourseRepository;
 import com.skillbox.repository.CourseTaskRepository;
 import com.skillbox.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +22,31 @@ public class UserService {
     @Autowired
     private CourseTaskRepository courseTaskRepository;
 
+    @Autowired
+    private CourseRepository courseRepository;
+
     public User getUserById(String userId) {
-        return userRepository.findById(userId).orElse(null);
+        return userRepository.findById(userId).orElseThrow(() -> ErrorResponse.userNotFound(userId));
     }
 
     public String getTaskDescriptionByCourseId(String userId, String courseId) {
         User user = getUserById(userId);
-        if (user != null && user.getEnrolledCourses().contains(courseId)) {
-            List<CourseTask> tasks = courseTaskRepository.findByCourseId(courseId);
-            if (!tasks.isEmpty()) {
-                return tasks.get(0).getTaskDescription();
-            }
+        if (user == null) {
+            throw ErrorResponse.userNotFound(userId);
+        }
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> ErrorResponse.courseNotFound(courseId));
+
+        if (!user.getEnrolledCourses().contains(courseId)) {
+            return "Доступ к заданиям курса предоставляется после оплаты!";
+        }
+
+        List<CourseTask> tasks = courseTaskRepository.findByCourseId(courseId);
+        if (tasks.isEmpty()) {
             return "Для курса не найдено заданий.";
         }
-        return "Доступ к заданиям курса предоставляется после оплаты!";
+
+        return tasks.get(0).getTaskDescription();
     }
 }

@@ -9,21 +9,22 @@ import com.skillbox.model.TariffType;
 import com.skillbox.model.User;
 import com.skillbox.repository.CourseRepository;
 import com.skillbox.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class CatalogService {
-    private final UserRepository userRepo;
-    private final CourseRepository courseRepo;
-    private final PaymentClient paymentClient;
 
-    public CatalogService(UserRepository userRepo, CourseRepository courseRepo, PaymentClient paymentClient) {
-        this.userRepo = userRepo;
-        this.courseRepo = courseRepo;
-        this.paymentClient = paymentClient;
-    }
+    @Autowired
+    private UserRepository userRepo;
+
+    @Autowired
+    private CourseRepository courseRepo;
+
+    @Autowired
+    private PaymentClient paymentClient;
 
     public List<String> getAllDirections() {
         return courseRepo.findAllDirections();

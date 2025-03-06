@@ -2,10 +2,12 @@ package com.skillbox.service;
 
 import com.skillbox.dto.PaymentRequest;
 import com.skillbox.dto.PaymentResponse;
+import com.skillbox.exception.ErrorResponse;
 import com.skillbox.model.Bank;
 import com.skillbox.model.Payment;
 import com.skillbox.repository.BankRepository;
 import com.skillbox.repository.PaymentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -16,16 +18,16 @@ import java.util.UUID;
 
 @Service
 public class PaymentService {
-    private final PaymentRepository paymentRepository;
-    private final BankRepository bankRepository;
-    private final RestTemplate restTemplate;
-    private String catalogServiceUrl =  "http://catalog-service:8080";
 
-    public PaymentService(PaymentRepository paymentRepository, BankRepository bankRepository, RestTemplate restTemplate) {
-        this.paymentRepository = paymentRepository;
-        this.bankRepository = bankRepository;
-        this.restTemplate = restTemplate;
-    }
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private BankRepository bankRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
+    private String catalogServiceUrl =  "http://catalog-service:8080";
 
     public PaymentResponse createPayment(PaymentRequest request) {
         String paymentLink = "https://bank.example.com/pay/" + UUID.randomUUID();
@@ -51,17 +53,17 @@ public class PaymentService {
 
     public String processPayment(String userId, String paymentLink, double amount) {
         Bank bank = bankRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("User bank account not found"));
+                .orElseThrow(() -> ErrorResponse.bankNotFound(userId));
 
         if (bank.getBalance() >= amount) {
             bank.setBalance(bank.getBalance() - amount);
             bankRepository.save(bank);
 
             Payment payment = paymentRepository.findByPaymentLink(paymentLink)
-                    .orElseThrow(() -> new RuntimeException("Payment not found"));
+                    .orElseThrow(() -> ErrorResponse.paymentLinkNotFound(paymentLink));
 
             if (payment.getExpiresAt().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("Payment link expired");
+                throw ErrorResponse.paymentLinkExpired();
             }
 
             payment.setStatus("SUCCESS");
