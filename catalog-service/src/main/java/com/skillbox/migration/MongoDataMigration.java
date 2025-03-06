@@ -37,6 +37,7 @@ public class MongoDataMigration implements ApplicationListener<ContextRefreshedE
 
             mongoTemplate.save(course1);
             mongoTemplate.save(course2);
+            mongoTemplate.save(course3);
 
             System.out.println("📌 Initial courses added.");
         }

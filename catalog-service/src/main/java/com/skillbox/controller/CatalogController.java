@@ -1,6 +1,8 @@
 package com.skillbox.controller;
 
+import com.skillbox.dto.EnrollManuallyRequest;
 import com.skillbox.dto.EnrollRequest;
+import com.skillbox.exception.ErrorResponse;
 import com.skillbox.model.Course;
 import com.skillbox.service.CatalogService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,7 +60,7 @@ public class CatalogController {
                 .toList();
 
         if (courseTitles.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of());
+            throw ErrorResponse.coursesNotFoundByDirection(direction);
         }
         return ResponseEntity.ok(courseTitles);
     }
@@ -67,7 +69,7 @@ public class CatalogController {
             summary = "Получить детали курса",
             description = "Возвращает подробную информацию о курсе по его ID.",
             parameters = {
-                    @Parameter(name = "courseId", description = "ID курса", example = "java-101")
+                    @Parameter(name = "courseId", description = "ID курса", example = "1")
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Детали курса",
@@ -78,9 +80,6 @@ public class CatalogController {
     @GetMapping("/course/{courseId}")
     public ResponseEntity<Course> getCourseDetails(@PathVariable String courseId) {
         Course course = catalogService.getCourseDetails(courseId);
-        if (course == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(course);
     }
 
@@ -95,7 +94,7 @@ public class CatalogController {
     @PostMapping("/enroll/auth-method")
     public ResponseEntity<?> chooseAuthMethod(@RequestBody EnrollRequest request) {
         if (request.getUserId().isBlank() || request.getCourseId().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID и Course ID не могут быть пустыми");
+            throw ErrorResponse.badRequest("User ID и Course ID не могут быть пустыми");
         }
         if ("vk".equalsIgnoreCase(request.getMethod())) {
             String userName = "Дмитрий Борисович Афанасьев";
@@ -104,16 +103,23 @@ public class CatalogController {
             request.setName(userName);
             request.setEmail(userEmail);
 
-            String paymentLink = catalogService.enrollUserToCourse(request);
-            return ResponseEntity.ok(Map.of("paymentLink", paymentLink));
+            try {
+                String paymentLink = catalogService.enrollUserToCourse(request);
+                return ResponseEntity.ok(Map.of("paymentLink", paymentLink));
+            } catch (ResponseStatusException e) {
+                throw e;
+            } catch (Exception e) {
+                throw ErrorResponse.internalError("Произошла ошибка при записи на курс");
+            }
         }
         else if ("manual".equalsIgnoreCase(request.getMethod())) {
             return ResponseEntity.ok(Map.of("message", "Proceed with manual registration. Send user details to /enroll/manual"));
         }
         else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Неверный метод аутентификации: " + request.getMethod());
+            throw ErrorResponse.invalidAuthMethod(request.getMethod());
         }
     }
+
 
     @Operation(
             summary = "Записать пользователя на курс",
@@ -121,7 +127,7 @@ public class CatalogController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Данные о пользователе и курсе",
                     required = true,
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = EnrollRequest.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = EnrollManuallyRequest.class))
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Запись успешна"),
@@ -129,8 +135,14 @@ public class CatalogController {
             }
     )
     @PostMapping("/enroll")
-    public ResponseEntity<Map<String, String>> enrollUser(@RequestBody EnrollRequest request) {
-        String response = catalogService.enrollUserToCourse(request);
-        return ResponseEntity.ok(Map.of("message", response));
+    public ResponseEntity<Map<String, String>> enrollUser(@RequestBody EnrollManuallyRequest request) {
+        try {
+            String response = catalogService.enrollUserToCourse(request);
+            return ResponseEntity.ok(Map.of("message", response));
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw ErrorResponse.internalError("Произошла ошибка при записи на курс");
+        }
     }
 }

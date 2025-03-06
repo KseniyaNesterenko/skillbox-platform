@@ -1,7 +1,9 @@
 package com.skillbox.service;
 
 import com.skillbox.client.PaymentClient;
+import com.skillbox.dto.EnrollManuallyRequest;
 import com.skillbox.dto.EnrollRequest;
+import com.skillbox.exception.ErrorResponse;
 import com.skillbox.model.Course;
 import com.skillbox.model.TariffType;
 import com.skillbox.model.User;
@@ -28,11 +30,9 @@ public class CatalogService {
     }
 
     public Course getCourseDetails(String courseId) {
-        System.out.println("Looking for course with ID: " + courseId);
         return courseRepo.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> ErrorResponse.courseNotFound(courseId));
     }
-
 
     public List<Course> getCoursesByDirection(String direction) {
         return courseRepo.findByDirection(direction);
@@ -42,24 +42,36 @@ public class CatalogService {
         return userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public String enrollUserToCourse(EnrollRequest request) {
+    public String enrollUserToCourse(EnrollManuallyRequest request) {
         User user = getUser(request.getUserId());
+        if (user == null) {
+            throw ErrorResponse.userNotFound(request.getUserId());
+        }
+
+
+        String defaultEmail = "dima@example.com";
+
+        if (!defaultEmail.equals(request.getEmail()) && !user.getEmail().equals(request.getEmail())) {
+            throw ErrorResponse.emailMismatch();
+        }
+
+
         Course course = courseRepo.findById(request.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> ErrorResponse.courseNotFound(request.getCourseId()));
 
         TariffType requestedTariff;
         try {
             requestedTariff = TariffType.valueOf(request.getTariff().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid tariff: " + request.getTariff());
+            throw ErrorResponse.invalidTariff(request.getTariff());
         }
 
         if (!course.getTariffs().contains(requestedTariff)) {
-            throw new RuntimeException("Invalid tariff");
+            throw ErrorResponse.tariffNotAvailable();
         }
 
         if (user.getEnrolledCourses().contains(request.getCourseId())) {
-            throw new RuntimeException("User is already enrolled in this course");
+            throw ErrorResponse.userAlreadyEnrolled(request.getUserId(), request.getCourseId());
         }
 
         return paymentClient.generatePaymentLink(request.getUserId(), request.getCourseId(), request.getName(), request.getEmail(), request.getTariff());
