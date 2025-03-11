@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import com.skillbox.exception.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class UserController {
         }
 
         if (user.getEnrolledCourses().contains(courseId)) {
-            return ResponseEntity.badRequest().body("User is already enrolled in course: " + courseId);
+            throw ErrorResponse.userAlreadyEnrolled(userId, courseId);
         }
 
         user.getEnrolledCourses().add(courseId);
@@ -70,4 +71,18 @@ public class UserController {
         return ResponseEntity.ok(description);
     }
 
+    @Operation(summary = "Очистка списка курсов пользователя", description = "Удаляет все курсы, на которые записан пользователь")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Список курсов очищен"),
+            @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    })
+    @DeleteMapping("/{userId}/courses")
+    public ResponseEntity<String> clearUserCourses(@PathVariable String userId) {
+        User user = userService.getUserById(userId);
+
+        user.setEnrolledCourses(new ArrayList<>());
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Список курсов очищен");
+    }
 }

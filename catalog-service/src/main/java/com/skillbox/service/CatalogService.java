@@ -40,15 +40,11 @@ public class CatalogService {
     }
 
     public User getUser(String userId) {
-        return userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepo.findById(userId).orElseThrow(() -> ErrorResponse.userNotFound(userId));
     }
 
     public String enrollUserToCourse(EnrollManuallyRequest request) {
         User user = getUser(request.getUserId());
-        if (user == null) {
-            throw ErrorResponse.userNotFound(request.getUserId());
-        }
-
 
         String defaultEmail = "dima@example.com";
 

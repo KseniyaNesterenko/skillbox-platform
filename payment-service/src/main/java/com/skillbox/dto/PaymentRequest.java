@@ -9,24 +9,4 @@ public class PaymentRequest {
     private String tariff;
     private String name;
     private String email;
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getCourseId() {
-        return courseId;
-    }
-
-    public String getTariff() {
-        return tariff;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
 }

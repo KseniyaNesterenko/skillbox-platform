@@ -10,11 +10,23 @@ public class ErrorResponse {
     }
 
     public static ResponseStatusException paymentLinkNotFound(String paymentLink) {
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Ссылка " + paymentLink + " некорректна!");
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ссылка " + paymentLink + " некорректна!");
     }
 
     public static ResponseStatusException paymentLinkExpired() {
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Ссылка на оплату просрочена!");
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ссылка на оплату просрочена!");
+    }
+
+    public static ResponseStatusException negativeAmount() {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Сумма для оплаты должна быть положительной!");
+    }
+
+    public static ResponseStatusException invalidAmountType() {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Сумма введена некорректно!");
+    }
+
+    public static ResponseStatusException paymentAlreadyProcessed(String paymentLink) {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, "Вы не можете больше использовать эту ссылку!");
     }
 
     public static ResponseStatusException badRequest(String message) {

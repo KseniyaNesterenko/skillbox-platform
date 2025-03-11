@@ -9,11 +9,9 @@ import com.skillbox.repository.BankRepository;
 import com.skillbox.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -27,9 +25,10 @@ public class PaymentService {
 
     @Autowired
     private RestTemplate restTemplate;
+
     private String catalogServiceUrl =  "http://catalog-service:8080";
 
-    public PaymentResponse createPayment(PaymentRequest request) {
+    public String createPayment(PaymentRequest request) {
         String paymentLink = "https://bank.example.com/pay/" + UUID.randomUUID();
 
         Payment payment = new Payment();
@@ -44,27 +43,36 @@ public class PaymentService {
 
         paymentRepository.save(payment);
 
-        PaymentResponse response = new PaymentResponse();
-        response.setPaymentLink(paymentLink);
-        response.setStatus("PENDING");
-
-        return response;
+        return paymentLink;
     }
+
 
     public String processPayment(String userId, String paymentLink, double amount) {
         Bank bank = bankRepository.findByUserId(userId)
                 .orElseThrow(() -> ErrorResponse.bankNotFound(userId));
 
+        if (amount != (int) amount) {
+            throw ErrorResponse.invalidAmountType();
+        }
+
+        if (amount <= 0) {
+            throw ErrorResponse.negativeAmount();
+        }
+
+        Payment payment = paymentRepository.findByPaymentLink(paymentLink)
+                .orElseThrow(() -> ErrorResponse.paymentLinkNotFound(paymentLink));
+
+        if (payment.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw ErrorResponse.paymentLinkExpired();
+        }
+
+        if ("SUCCESS".equals(payment.getStatus())) {
+            throw ErrorResponse.paymentAlreadyProcessed(paymentLink);
+        }
+
         if (bank.getBalance() >= amount) {
             bank.setBalance(bank.getBalance() - amount);
             bankRepository.save(bank);
-
-            Payment payment = paymentRepository.findByPaymentLink(paymentLink)
-                    .orElseThrow(() -> ErrorResponse.paymentLinkNotFound(paymentLink));
-
-            if (payment.getExpiresAt().isBefore(LocalDateTime.now())) {
-                throw ErrorResponse.paymentLinkExpired();
-            }
 
             payment.setStatus("SUCCESS");
             paymentRepository.save(payment);
@@ -72,10 +80,10 @@ public class PaymentService {
             String enrollUrl = catalogServiceUrl + "/users/" + userId + "/enroll/" + payment.getCourseId();
             restTemplate.put(enrollUrl, null);
 
-
             return "SUCCESS";
         } else {
             return "INSUFFICIENT_FUNDS";
         }
     }
+
 }

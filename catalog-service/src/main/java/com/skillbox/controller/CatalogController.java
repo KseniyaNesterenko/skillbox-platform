@@ -92,7 +92,7 @@ public class CatalogController {
             }
     )
     @PostMapping("/enroll/auth-method")
-    public ResponseEntity<?> chooseAuthMethod(@RequestBody EnrollRequest request) {
+    public ResponseEntity<String> chooseAuthMethod(@RequestBody EnrollRequest request) {
         if (request.getUserId().isBlank() || request.getCourseId().isBlank()) {
             throw ErrorResponse.badRequest("User ID и Course ID не могут быть пустыми");
         }
@@ -105,7 +105,7 @@ public class CatalogController {
 
             try {
                 String paymentLink = catalogService.enrollUserToCourse(request);
-                return ResponseEntity.ok(Map.of("paymentLink", paymentLink));
+                return ResponseEntity.ok(paymentLink);
             } catch (ResponseStatusException e) {
                 throw e;
             } catch (Exception e) {
@@ -113,7 +113,7 @@ public class CatalogController {
             }
         }
         else if ("manual".equalsIgnoreCase(request.getMethod())) {
-            return ResponseEntity.ok(Map.of("message", "Proceed with manual registration. Send user details to /enroll/manual"));
+            return ResponseEntity.ok("Вы выбрали авторизацию без ВК. Перейдите в /enroll/manual");
         }
         else {
             throw ErrorResponse.invalidAuthMethod(request.getMethod());
@@ -135,10 +135,10 @@ public class CatalogController {
             }
     )
     @PostMapping("/enroll")
-    public ResponseEntity<Map<String, String>> enrollUser(@RequestBody EnrollManuallyRequest request) {
+    public ResponseEntity<String> enrollUser(@RequestBody EnrollManuallyRequest request) {
         try {
             String response = catalogService.enrollUserToCourse(request);
-            return ResponseEntity.ok(Map.of("message", response));
+            return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
