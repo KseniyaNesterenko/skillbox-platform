@@ -1,7 +1,9 @@
 package com.skillbox.controller;
 
 import com.skillbox.dto.PaymentRequest;
-import com.skillbox.dto.PaymentResponse;
+import com.skillbox.exception.ErrorResponse;
+import com.skillbox.model.Bank;
+import com.skillbox.repository.BankRepository;
 import com.skillbox.service.PaymentService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,9 +12,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/payment")
@@ -21,6 +25,8 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private BankRepository bankRepository;
 
     @Hidden
     @PostMapping("/create")
@@ -42,4 +48,23 @@ public class PaymentController {
             @Parameter(description = "Сумма платежа") @RequestParam double amount) {
         return paymentService.processPayment(userId, paymentLink, amount);
     }
+
+    @Operation(summary = "Информация о балансе пользователя", description = "Возвращает баланс пользователя")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Баланс пользователя успешно получен"),
+            @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    })
+    @GetMapping("/{userId}/balance")
+    public ResponseEntity<Object> getUserBalance(@PathVariable String userId) {
+        Optional<Bank> bankOptional = bankRepository.findByUserId(userId);
+
+        if (!bankOptional.isPresent()) {
+            throw ErrorResponse.bankNotFound(userId);
+        }
+
+        Bank bank = bankOptional.get();
+        return ResponseEntity.ok(bank.getBalance());
+    }
+
+
 }
