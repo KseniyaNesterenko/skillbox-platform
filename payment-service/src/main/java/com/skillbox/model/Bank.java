@@ -1,10 +1,14 @@
 package com.skillbox.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "banks")
 public class Bank {
     @Id
@@ -12,24 +16,4 @@ public class Bank {
     private String userId;
     private double balance;
 
-    public Bank(String userId, double balance) {
-        this.userId = userId;
-        this.balance = balance;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(double balance) {
-        this.balance = balance;
-    }
 }

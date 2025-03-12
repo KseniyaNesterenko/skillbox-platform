@@ -1,0 +1,63 @@
+@baseUrlCatalog = http://localhost:8082/catalog
+@baseUrlPayment = http://localhost:8080/payment
+@Программирование = Программирование
+@userId = 2
+
+###  Получение списка направлений
+GET {{baseUrlCatalog}}/directions
+Content-Type: application/json
+
+###  Получение курсов по направлению (Программирование)
+GET {{baseUrlCatalog}}/courses/{{Программирование}}
+Content-Type: application/json
+
+###  Получение информации о курсе (id=1)
+GET {{baseUrlCatalog}}/course/1
+Content-Type: application/json
+
+### Запись пользователя на курс с ВК
+POST {{baseUrlCatalog}}/enroll/auth-method
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "courseId": "1",
+  "method": "vk",
+  "tariff": "STARTER"
+}
+
+### Запись пользователя на курс вручную
+POST {{baseUrlCatalog}}/enroll
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "courseId": "2",
+  "name": "Дмитрий Борисович Афанасьев",
+  "email": "dima@example.com",
+  "tariff": "STARTER"
+}
+
+### Создание платежа для пользователя
+POST {{baseUrlPayment}}/create
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "courseId": "1",
+  "tariff": "STARTER",
+  "name": "Дмитрий Борисович Афанасьев",
+  "email": "dima@example.com"
+}
+
+> {%
+    client.global.set("paymentLink", response.body.paymentLink);
+%}
+
+### Выполнение оплаты
+POST {{baseUrlPayment}}/process
+Content-Type: application/x-www-form-urlencoded
+
+userId={{userId}}
+paymentLink={{paymentLink}}
+amount=10

@@ -13,31 +13,4 @@ public class User {
     private String email;
     private List<String> enrolledCourses;
 
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public List<String> getEnrolledCourses() {
-        return enrolledCourses;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setEnrolledCourses(List<String> enrolledCourses) {
-        this.enrolledCourses = enrolledCourses;
-    }
 }
