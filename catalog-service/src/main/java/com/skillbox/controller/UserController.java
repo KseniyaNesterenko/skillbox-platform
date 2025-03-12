@@ -61,6 +61,7 @@ public class UserController {
     @Operation(summary = "Получение задания по курсу", description = "Возвращает описание задания курса")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Задание успешно получено"),
+            @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
             @ApiResponse(responseCode = "404", description = "Задание не найдено")
     })
     @GetMapping("/{userId}/courses/{courseId}/task-description")

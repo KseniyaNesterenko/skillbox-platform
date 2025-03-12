@@ -39,7 +39,7 @@ public class UserService {
                 .orElseThrow(() -> ErrorResponse.courseNotFound(courseId));
 
         if (!user.getEnrolledCourses().contains(courseId)) {
-            return "Доступ к заданиям курса предоставляется после оплаты!";
+            throw ErrorResponse.noAccessToTasks();
         }
 
         List<CourseTask> tasks = courseTaskRepository.findByCourseId(courseId);

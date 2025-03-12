@@ -37,6 +37,10 @@ public class ErrorResponse {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, "Курсов по направлению " + direction + " не найдено");
     }
 
+    public static ResponseStatusException noAccessToTasks() {
+        return new ResponseStatusException(HttpStatus.FORBIDDEN, "Доступ к заданиям курса предоставляется после оплаты!");
+    }
+
     public static ResponseStatusException badRequest(String message) {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }

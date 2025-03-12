@@ -45,13 +45,11 @@ public class CatalogService {
 
     public String enrollUserToCourse(EnrollManuallyRequest request) {
         User user = getUser(request.getUserId());
-
         String defaultEmail = "dima@example.com";
 
         if (!defaultEmail.equals(request.getEmail()) && !user.getEmail().equals(request.getEmail())) {
             throw ErrorResponse.emailMismatch();
         }
-
 
         Course course = courseRepo.findById(request.getCourseId())
                 .orElseThrow(() -> ErrorResponse.courseNotFound(request.getCourseId()));
